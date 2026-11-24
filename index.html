@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUNGEON CRAWLER // INFINITE DESCENT</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-amber">
+    <!-- CRT monitor overlay effects -->
+    <div class="crt-overlay"></div>
+
+    <div class="game-container">
+        <!-- Header -->
+        <header class="header-bar">
+            <div>
+                <span class="game-title">⚔ DUNGEON CRAWLER</span>
+                <span id="engineStatus" style="font-size: 0.75rem; margin-left: 10px; color: var(--text-dim);">○ PROCEDURAL ENGINE</span>
+            </div>
+            <div class="controls-group">
+                <button id="themeBtn" class="btn-retro" title="Сменить стиль (Янтарь / Зеленый CRT / Древний Свиток)">🎨 ТЕМА</button>
+                <button id="soundBtn" class="btn-retro" title="Включить / Выключить звук">🔊 ЗВУК</button>
+                <button id="invBtn" class="btn-retro">🎒 МЕШОК</button>
+                <button id="settingsBtn" class="btn-retro">⚙ LLM / AI</button>
+            </div>
+        </header>
+
+        <!-- Player Stats Panel -->
+        <section class="stats-panel">
+            <div class="stat-item">
+                <span class="stat-label">Здоровье (HP)</span>
+                <span id="hpVal" class="stat-val">30/30</span>
+                <div class="health-bar-container">
+                    <div id="hpBar" class="health-bar-fill"></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Мана / Стамина</span>
+                <span id="mpVal" class="stat-val">15/15</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Уровень & Опыт</span>
+                <span id="levelVal" class="stat-val">1 ур. (0/100 XP)</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Локация</span>
+                <span id="floorVal" class="stat-val">Этаж 1</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Казна</span>
+                <span id="goldVal" class="stat-val">25 🪙</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Снаряжение</span>
+                <span id="gearVal" class="stat-val" style="font-size: 0.8rem;">Ржавый тесак / Кожа</span>
+            </div>
+        </section>
+
+        <!-- Viewport (Narrative, ASCII, Logs) -->
+        <main class="viewport">
+            <div id="asciiFrame" class="ascii-frame"></div>
+            <div id="roomTitle" class="room-title">Загрузка подземелья...</div>
+            <div id="roomDesc" class="room-desc"></div>
+            <div id="actionLog" class="action-log"></div>
+        </main>
+
+        <!-- Quick Choice Buttons -->
+        <div id="choicesContainer" class="choices-container">
+            <!-- Buttons injected by engine -->
+        </div>
+
+        <!-- Terminal Command Prompt Input -->
+        <div class="prompt-bar">
+            <span class="prompt-symbol">&gt;</span>
+            <input type="text" id="cmdInput" class="cmd-input" placeholder="Введи действие (например: ударить факелом, обыскать нишу, молиться)..." autocomplete="off" spellcheck="false">
+            <button id="submitBtn" class="btn-retro">ВВОД ↵</button>
+        </div>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div id="invModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">🎒 Заплечный мешок бродяги</div>
+            <ul id="invList" class="inventory-list"></ul>
+            <button id="closeInvBtn" class="btn-retro" style="width: 100%;">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Settings & AI LLM Modal -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">⚙ Настройки Dungeon Master (AI)</div>
+            <p style="font-size: 0.82rem; margin-bottom: 12px; line-height: 1.4; color: var(--text-dim);">
+                По умолчанию игра работает на мощном встроенном процедурном генераторе (без ключей).
+                Вы можете подключить <strong>Gemini API</strong> или <strong>локальную модель через Ollama / OpenRouter</strong>, чтобы мир генерировала нейросеть в реальном времени!
+            </p>
+            <div class="form-group">
+                <label class="form-label">Тип провайдера AI:</label>
+                <select id="apiEndpointSelect" class="form-select">
+                    <option value="gemini">Google Gemini API (gemini-2.5-flash / free key)</option>
+                    <option value="custom">Ollama / OpenRouter / Custom OpenAI-compatible</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">API Key (сохраняется только в вашем браузере):</label>
+                <input type="password" id="apiKeyInput" class="form-input" placeholder="Вставьте ваш API ключ...">
+            </div>
+            <div class="form-group" id="customUrlGroup" style="display: none;">
+                <label class="form-label">Custom API URL (Endpoint):</label>
+                <input type="text" id="customUrlInput" class="form-input" value="http://localhost:11434/v1/chat/completions">
+            </div>
+            <div class="form-group" id="customModelGroup" style="display: none;">
+                <label class="form-label">Model Name:</label>
+                <input type="text" id="customModelInput" class="form-input" value="llama3">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                <button id="saveSettingsBtn" class="btn-retro" style="flex: 1;">Сохранить</button>
+                <button id="closeSettingsBtn" class="btn-retro" style="flex: 1;">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="engine.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
